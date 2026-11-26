@@ -1,0 +1,48 @@
+info:
+  name: litellm_version_scan
+  author: Fezz-TVM-Labs
+  severity: 3
+  description: LiteLLM version scan - detects a LiteLLM proxy via its unauthenticated /openapi.json document and reports its version.
+  reference:
+    - https://docs.litellm.ai/docs/simple_proxy
+    - https://github.com/BerriAI/litellm
+  profiles:
+    - scan
+    - http
+    - litellm
+    - info_severity
+
+payloads:
+  - library: http
+    steps:
+      - method: get
+        timeout: 3
+        headers:
+          User-Agent: "{user_agent}"
+        allow_redirects: false
+        ssl: false
+        url:
+          nettacker_fuzzer:
+            input_format: "{{schema}}://{target}:{{ports}}/openapi.json"
+            prefix: ""
+            suffix: ""
+            interceptors:
+            data:
+              schema:
+                - "http"
+                - "https"
+              ports:
+                - 80
+                - 443
+                - 4000
+        response:
+          condition_type: and
+          conditions:
+            status_code:
+              regex: "200"
+              reverse: false
+            content:
+              # In the "info" object, "title" is followed by an optional "description" and then "version".
+              regex: '"title"\s*:\s*"LiteLLM API"\s*,\s*(?:"description"\s*:\s*"(?:[^"\\]|\\.)*"\s*,\s*)?"version"\s*:\s*"([^"\\]+)"'
+              reverse: false
+          log: "response_dependent['content']"

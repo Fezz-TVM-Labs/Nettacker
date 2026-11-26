@@ -205,6 +205,7 @@ Use `--show-all-modules` for live metadata and check-specific details.
 | `joomla_template_scan` | Identifies templates installed on a Joomla site. |
 | `joomla_user_enum_scan` | Attempts to enumerate Joomla users through publicly available responses. |
 | `joomla_version_scan` | Identifies a Joomla installation and reports its version. |
+| `litellm_version_scan` | Detects a LiteLLM proxy via its unauthenticated `/openapi.json` document and reports its version. |
 | `moveit_version_scan` | Detects Progress MOVEit Transfer and reports its version. |
 | `plex_version_scan` | Detects Plex Media Server via its unauthenticated `/identity` endpoint and reports its version. |
 | `pma_scan` | Searches common paths for a phpMyAdmin installation. |
