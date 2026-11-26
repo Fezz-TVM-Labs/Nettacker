@@ -1,0 +1,49 @@
+info:
+  name: langflow_version_scan
+  author: Fezz-TVM-Labs
+  severity: 3
+  description: Langflow version scan - detects Langflow via the unauthenticated /api/v1/version endpoint and reports its version.
+  reference:
+    - https://docs.langflow.org/
+    - https://github.com/langflow-ai/langflow
+  profiles:
+    - scan
+    - http
+    - langflow
+    - info_severity
+
+payloads:
+  - library: http
+    steps:
+      - method: get
+        timeout: 3
+        headers:
+          User-Agent: "{user_agent}"
+        allow_redirects: false
+        ssl: false
+        url:
+          nettacker_fuzzer:
+            input_format: "{{schema}}://{target}:{{ports}}/api/v1/version"
+            prefix: ""
+            suffix: ""
+            interceptors:
+            data:
+              schema:
+                - "http"
+                - "https"
+              ports:
+                - 80
+                - 443
+                - 7860
+        response:
+          condition_type: and
+          conditions:
+            status_code:
+              regex: "200"
+              reverse: false
+            content:
+              # One flat JSON object that names the package "Langflow" (or "Langflow Base"), with "version" in any position.
+              # Braces are doubled because the module text goes through str.format() before it is parsed.
+              regex: '\{{(?=[^{{}}]*"package"\s*:\s*"Langflow[^"\\]*")[^{{}}]*?"version"\s*:\s*"([^"\\]+)"'
+              reverse: false
+          log: "response_dependent['content']"
