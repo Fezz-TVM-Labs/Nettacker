@@ -1,0 +1,48 @@
+info:
+  name: ray_version_scan
+  author: Fezz-TVM-Labs
+  severity: 3
+  description: Ray version scan - detects a Ray dashboard via the unauthenticated /api/version endpoint and reports its Ray version. Ray 2.52 and later can require a token for this route; with token authentication on, this module stays quiet.
+  reference:
+    - https://docs.ray.io/en/latest/ray-observability/getting-started.html
+    - https://docs.ray.io/en/latest/cluster/running-applications/job-submission/rest.html
+    - https://github.com/ray-project/ray
+  profiles:
+    - scan
+    - http
+    - ray
+    - info_severity
+
+payloads:
+  - library: http
+    steps:
+      - method: get
+        timeout: 3
+        headers:
+          User-Agent: "{user_agent}"
+        allow_redirects: false
+        ssl: false
+        url:
+          nettacker_fuzzer:
+            input_format: "{{schema}}://{target}:{{ports}}/api/version"
+            prefix: ""
+            suffix: ""
+            interceptors:
+            data:
+              schema:
+                - "http"
+                - "https"
+              ports:
+                - 80
+                - 443
+                - 8265
+        response:
+          condition_type: and
+          conditions:
+            status_code:
+              regex: "200"
+              reverse: false
+            content:
+              regex: '"ray_version"\s*:\s*"([^"\\]+)"'
+              reverse: false
+          log: "response_dependent['content']"

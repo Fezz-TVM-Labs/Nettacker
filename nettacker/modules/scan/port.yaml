@@ -1032,6 +1032,7 @@ payloads:
           - 4503   # Adobe Experience Manager (publish)
           - 5230   # Memos
           - 7860   # Langflow
+          - 8265   # Ray dashboard
           - 17017  # SmarterMail
           - 32400  # Plex Media Server
         response:
